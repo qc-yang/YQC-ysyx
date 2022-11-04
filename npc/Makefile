@@ -5,11 +5,11 @@ sim:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@echo "Write this Makefile by your self."
 
-	verilator	-Wall	--cc	--exe	--build	./csrc/$(lab00_light).cpp	./vsrc/$(lab00_light).v	--trace
+	verilator	-Wall	--cc	--exe	--build	./csrc/$(lab02_light).cpp	./vsrc/$(lab02_light).v	--trace
 	./obj_dir/Vtop
 	gtkwave wave.vcd
 include ../Makefile
-TOPNAME = lab00_light
+TOPNAME = lab02_light
 NXDC_FILES = constr/top.nxdc
 INC_PATH ?=
 
