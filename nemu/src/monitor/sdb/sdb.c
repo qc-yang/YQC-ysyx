@@ -18,6 +18,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "sdb.h"
+#include <memory/paddr.h>
 
 static int is_batch_mode = false;
 
@@ -52,6 +53,46 @@ static int cmd_q(char *args) {
   return -1;
 }
 
+static int cmd_si(char *args) {
+  int step;
+  if (args == NULL) step = 1;
+  else sscanf(args, "%d", &step);
+  cpu_exec(step);
+  return 0;
+} 
+
+static int cmd_info(char *args) {
+  char *arg = strtok(NULL, " ");
+  //printf("%s\n", arg);
+  if (strcmp(arg, "r")==0){
+  isa_reg_display();
+  }
+  return 0;
+}
+
+static int cmd_x(char *args) {
+  char *N = strtok(NULL, " ");
+	char *EXPR = strtok(NULL, " ");
+	word_t addr;
+	int len;
+	sscanf(N, "%d", &len);
+	sscanf(EXPR, "%lx", &addr);
+	for(int i=0; i<len;i++){
+		printf("%lx:%08lx\n", addr, paddr_read(addr,4));
+		addr += 4;
+	}
+	printf("\n");
+	return 0;
+}	
+
+static int cmd_p(char *args) {
+  bool success;
+  uint64_t val = expr(args, &success);
+  if(success)
+     printf("%s = %lx\n", args, val);
+  return 0;
+}
+
 static int cmd_help(char *args);
 
 static struct {
@@ -62,7 +103,10 @@ static struct {
   { "help", "Display information about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
-
+  { "si", "Single-step execution", cmd_si },
+  { "info", "Print program status", cmd_info },
+  { "x", "Scanning memory", cmd_x },
+  { "p", "Expression evaluation", cmd_p}
   /* TODO: Add more commands */
 
 };
