@@ -167,13 +167,13 @@ word_t eval(int p, int q, bool *success) {
     return -1;
 }
     else if (p == q) {
-      uint32_t value = 0;
+      uint64_t value = 0;
       switch(tokens[p].type){
       case TK_DNUM:
-        sscanf(tokens[p].str, "%d", &value);
+        sscanf(tokens[p].str, "%ld", &value);
         break;
       case TK_HNUM:
-        sscanf(tokens[p].str, "%x", &value);
+        sscanf(tokens[p].str, "%lx", &value);
         break;
       case TK_REG:
         strcpy(tokens[p].str, tokens[p].str+1);
@@ -186,7 +186,7 @@ word_t eval(int p, int q, bool *success) {
 }   
     else if(tokens[p].type == TK_DEREF)
     {
-        uint32_t addr = eval(p+1, q, success);
+        uint64_t addr = eval(p+1, q, success);
         return vaddr_read(addr,4);
     }      
     else {

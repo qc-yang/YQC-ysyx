@@ -19,11 +19,12 @@
 #include <readline/history.h>
 #include "sdb.h"
 #include <memory/paddr.h>
-
+#include <monitor/watchpoint.h>
 static int is_batch_mode = false;
 
 void init_regex();
 void init_wp_pool();
+
 
 /* We use the `readline' library to provide more flexibility to read from stdin. */
 static char* rl_gets() {
@@ -66,7 +67,9 @@ static int cmd_info(char *args) {
   //printf("%s\n", arg);
   if (strcmp(arg, "r")==0){
   isa_reg_display();
-  }
+ }else if(strcmp(arg, "w")==0){
+  watchpoint_display();
+ } 
   return 0;
 }
 
@@ -89,10 +92,27 @@ static int cmd_p(char *args) {
   bool success;
   uint64_t val = expr(args, &success);
   if(success)
-     printf("%s = %lx\n", args, val);
+     printf("%s = %lu\n", args, val);
   return 0;
 }
 
+static int cmd_w(char *args) {
+  WP *new = new_wp(args);
+  printf("watchpoint NO.%d:%s sets successfully.\n", new->NO, new->exp);
+  return 0;
+}
+
+static int cmd_d(char *args) {
+  int n = atoi(args);
+  if(n < 0 || n > 32){
+  printf("out of watchpoint number range\n");
+  return 0;
+  }
+  else{
+  free_wp(n);
+  return 0;
+  }
+}
 static int cmd_help(char *args);
 
 static struct {
@@ -104,9 +124,11 @@ static struct {
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
   { "si", "Single-step execution", cmd_si },
-  { "info", "Print program status", cmd_info },
+  { "info", "Print program status or watchpoint", cmd_info },
   { "x", "Scanning memory", cmd_x },
-  { "p", "Expression evaluation", cmd_p}
+  { "p", "Expression evaluation", cmd_p},
+  { "w", "Set the watchpoint", cmd_w},
+  { "d", "Delete the watchpoint", cmd_d}
   /* TODO: Add more commands */
 
 };
